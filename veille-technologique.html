@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veille Technologique — Ryan Hadjout</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080808;
+    --bg2: #0f0f0f;
+    --bg3: #141414;
+    --surface: #1a1a1a;
+    --border: rgba(220,20,20,0.15);
+    --border2: rgba(220,20,20,0.4);
+    --text: #f0f0f0;
+    --muted: #707070;
+    --accent: #dc1414;
+    --accent2: #ff4444;
+    --accent3: #ffffff;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Barlow', sans-serif;
+    --display: 'Bebas Neue', sans-serif;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% -5%, rgba(180,0,0,0.18) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body > * { position: relative; z-index: 1; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 3rem;
+    background: rgba(8,8,8,0.98);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), #fff, var(--accent), transparent); }
+  .logo { font-family: var(--display); font-size: 22px; color: var(--accent); letter-spacing: 0.1em; text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 11px; font-weight: 700; color: var(--muted); text-decoration: none; letter-spacing: 0.18em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+  /* HERO */
+  .page-hero {
+    padding: 9rem 3rem 4rem;
+    position: relative; overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-hero::before {
+    content: ''; position: absolute; top: -100px; right: -100px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(220,20,20,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 2rem; transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  .page-tag { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+  .page-tag::before { content: '▶'; font-size: 8px; color: var(--accent); }
+
+  h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 1rem; }
+  h1 { font-family: var(--display); letter-spacing: 0.03em; }
+  h1 span { color: var(--accent); text-shadow: 0 0 30px rgba(220,20,20,0.4); -webkit-text-fill-color: unset; background: none; }
+
+  .page-desc { max-width: 600px; color: var(--muted); font-size: 1.05rem; line-height: 1.7; font-weight: 400; }
+
+  /* FILTERS */
+  .filters {
+    padding: 2rem 3rem;
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 65px; z-index: 50;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(20px);
+  }
+
+  .filter-btn {
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .filter-btn:hover { border-color: var(--border2); color: var(--text); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* MAIN CONTENT */
+  .content { padding: 3rem; max-width: 1200px; }
+
+  /* CATEGORY SECTION */
+  .category-section { margin-bottom: 4rem; }
+
+  .category-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem; padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .category-icon {
+    width: 42px; height: 42px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+
+  .category-title { font-size: 1.3rem; font-weight: 700; }
+  .category-count { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; letter-spacing: 0.08em; }
+
+  /* ARTICLE CARDS */
+  .articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; }
+
+  .article-card {
+    border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem;
+    background: var(--bg2); transition: all 0.25s; position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .article-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .article-card:hover { border-color: var(--border2); transform: translateY(-3px); background: var(--bg3); }
+  .article-card:hover::before { opacity: 1; }
+
+  .article-card.cyber::before { background: linear-gradient(90deg, #6c63ff, #a89cff); }
+  .article-card.reseau::before { background: linear-gradient(90deg, #00d4aa, #00a884); }
+  .article-card.cloud::before { background: linear-gradient(90deg, #ff6b6b, #ff9999); }
+  .article-card.admin::before { background: linear-gradient(90deg, #fac775, #ef9f27); }
+
+  .article-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .article-category-badge {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 3px; font-weight: 500;
+  }
+  .badge-cyber { background: rgba(108,99,255,0.15); color: var(--accent); border: 1px solid rgba(220,20,20,0.2); }
+  .badge-reseau { background: rgba(220,20,20,0.1); color: var(--accent); border: 1px solid rgba(0,212,170,0.2); }
+  .badge-cloud { background: rgba(255,107,107,0.1); color: #ff9999; border: 1px solid rgba(255,107,107,0.2); }
+  .badge-admin { background: rgba(250,199,117,0.1); color: #fac775; border: 1px solid rgba(250,199,117,0.2); }
+
+  .article-date { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  .article-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.6rem; line-height: 1.4; color: var(--text); }
+
+  .article-summary { font-size: 0.88rem; color: var(--muted); line-height: 1.65; flex: 1; margin-bottom: 1.25rem; font-weight: 400; }
+
+  .article-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+  .article-tag {
+    padding: 2px 8px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 3px; font-family: var(--mono); font-size: 10px; color: var(--muted);
+  }
+
+  .article-source {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    padding-top: 1rem; border-top: 1px solid var(--border); margin-top: auto;
+  }
+  .article-source span { color: var(--accent); }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex; gap: 2rem; flex-wrap: wrap;
+    padding: 2rem 3rem; border-bottom: 1px solid var(--border);
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 0.2rem; }
+  .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1; }
+  .stat-label { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
+  .footer-text { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1.5rem; border: 1px solid var(--border2); color: var(--text);
+    text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+    transition: all 0.2s; font-family: var(--sans);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .page-hero, .content, .filters, .stats-bar { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .articles-grid { grid-template-columns: 1fr; }
+    footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">rh.portfolio</a>
+  <ul class="nav-links">
+    <li><a href="index.html#apropos">À propos</a></li>
+    <li><a href="index.html#projets">Projets</a></li>
+    <li><a href="veille-technologique.html" class="active">Veille</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <a href="index.html" class="back-link">← Retour au portfolio</a>
+  <div class="page-tag">03 — Veille technologique</div>
+  <h1>Veille <span>Technologique</span></h1>
+  <p class="page-desc">Suivi régulier des actualités IT dans les domaines de la cybersécurité, des réseaux, du cloud et de l'administration système.</p>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">Articles suivis</div></div>
+  <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">Thématiques</div></div>
+  <div class="stat-item"><div class="stat-num">2026</div><div class="stat-label">Mise à jour</div></div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <button class="filter-btn active" onclick="filterCategory('all', this)">Tout</button>
+  <button class="filter-btn" onclick="filterCategory('cyber', this)">🔐 Cybersécurité</button>
+  <button class="filter-btn" onclick="filterCategory('reseau', this)">🌐 Réseaux</button>
+  <button class="filter-btn" onclick="filterCategory('cloud', this)">☁️ Cloud</button>
+  <button class="filter-btn" onclick="filterCategory('admin', this)">⚙️ Administration</button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- CYBERSECURITE -->
+  <div class="category-section fade-up" data-cat="cyber">
+    <div class="category-header">
+      <div class="category-icon" style="background:rgba(108,99,255,0.15)">🔐</div>
+      <div class="category-title">Cybersécurité</div>
+      <div class="category-count">3 articles</div>
+    </div>
+    <div class="articles-grid">
+
+      <div class="article-card cyber">
+        <div class="article-meta">
+          <span class="article-category-badge badge-cyber">Cybersécurité</span>
+          <span class="article-date">Mars 2026</span>
+        </div>
+        <div class="article-title">Durcissement Active Directory : nouvelles recommandations ANSSI</div>
+        <p class="article-summary">L'ANSSI met à jour ses guides de durcissement pour Active Directory face à l'augmentation des attaques ciblant les contrôleurs de domaine. Les recommandations portent notamment sur la gestion des comptes privilégiés, Kerberos et la désactivation des protocoles legacy comme NTLM.</p>
+        <div class="article-tags">
+          <span class="article-tag">Active Directory</span>
+          <span class="article-tag">ANSSI</span>
+          <span class="article-tag">Kerberos</span>
+          <span class="article-tag">NTLM</span>
+        </div>
+        <div class="article-source">Source : <span>ANSSI / cert.ssi.gouv.fr</span></div>
+      </div>
+
+      <div class="article-card cyber">
+        <div class="article-meta">
+          <span class="article-category-badge badge-cyber">Cybersécurité</span>
+          <span class="article-date">Fév. 2026</span>
+        </div>
+        <div class="article-title">Purple Knight 4.0 : audit de sécurité AD amélioré</div>
+        <p class="article-summary">La nouvelle version de Purple Knight intègre des indicateurs de compromission inédits et améliore la détection des délégations Kerberos dangereuses. L'outil reste gratuit pour les entreprises et constitue un point de départ idéal pour tout audit de sécurité Active Directory.</p>
+        <div class="article-tags">
+          <span class="article-tag">Purple Knight</span>
+          <span class="article-tag">Audit AD</span>
+          <span class="article-tag">IOC</span>
+        </div>
+        <div class="article-source">Source : <span>Semperis Blog</span></div>
+      </div>
+
+      <div class="article-card cyber">
+        <div class="article-meta">
+          <span class="article-category-badge badge-cyber">Cybersécurité</span>
+          <span class="article-date">Jan. 2026</span>
+        </div>
+        <div class="article-title">Ransomware : les PME françaises de plus en plus ciblées</div>
+        <p class="article-summary">Le rapport annuel sur les cybermenaces montre une hausse de 40% des attaques ransomware visant les TPE/PME françaises. Les vecteurs d'entrée principaux restent le phishing et l'exploitation de RDP exposé sur Internet, soulignant l'importance des pare-feux bien configurés.</p>
+        <div class="article-tags">
+          <span class="article-tag">Ransomware</span>
+          <span class="article-tag">PME</span>
+          <span class="article-tag">Phishing</span>
+          <span class="article-tag">RDP</span>
+        </div>
+        <div class="article-source">Source : <span>ANSSI — Panorama de la cybermenace</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RESEAUX -->
+  <div class="category-section fade-up" data-cat="reseau" style="transition-delay:0.1s">
+    <div class="category-header">
+      <div class="category-icon" style="background:rgba(0,212,170,0.12)">🌐</div>
+      <div class="category-title">Réseaux &amp; Protocoles</div>
+      <div class="category-count">3 articles</div>
+    </div>
+    <div class="articles-grid">
+
+      <div class="article-card reseau">
+        <div class="article-meta">
+          <span class="article-category-badge badge-reseau">Réseaux</span>
+          <span class="article-date">Mars 2026</span>
+        </div>
+        <div class="article-title">Zero Trust Network Access (ZTNA) : vers la fin des VPN traditionnels ?</div>
+        <p class="article-summary">Le modèle Zero Trust s'impose progressivement comme l'architecture de référence pour sécuriser les accès distants. Contrairement aux VPN IPsec classiques, le ZTNA applique une vérification continue de l'identité et restreint l'accès au strict nécessaire selon le principe du moindre privilège.</p>
+        <div class="article-tags">
+          <span class="article-tag">Zero Trust</span>
+          <span class="article-tag">ZTNA</span>
+          <span class="article-tag">VPN</span>
+          <span class="article-tag">IAM</span>
+        </div>
+        <div class="article-source">Source : <span>Gartner / Palo Alto Networks Blog</span></div>
+      </div>
+
+      <div class="article-card reseau">
+        <div class="article-meta">
+          <span class="article-category-badge badge-reseau">Réseaux</span>
+          <span class="article-date">Fév. 2026</span>
+        </div>
+        <div class="article-title">Stormshield SNS 4.7 : nouvelles fonctionnalités de filtrage</div>
+        <p class="article-summary">La dernière mise à jour du système Stormshield Network Security introduit un moteur d'inspection SSL/TLS amélioré et de nouveaux profils de filtrage applicatif. La gestion des règles IPsec est également simplifiée pour les configurations multi-sites.</p>
+        <div class="article-tags">
+          <span class="article-tag">Stormshield</span>
+          <span class="article-tag">SNS 4.7</span>
+          <span class="article-tag">SSL/TLS</span>
+          <span class="article-tag">IPsec</span>
+        </div>
+        <div class="article-source">Source : <span>Stormshield.com — Release Notes</span></div>
+      </div>
+
+      <div class="article-card reseau">
+        <div class="article-meta">
+          <span class="article-category-badge badge-reseau">Réseaux</span>
+          <span class="article-date">Jan. 2026</span>
+        </div>
+        <div class="article-title">IPv6 : accélération du déploiement en France</div>
+        <p class="article-summary">L'ARCEP publie ses chiffres montrant que plus de 70% des abonnés français ont désormais accès à IPv6. Pour les administrateurs réseau, la coexistence IPv4/IPv6 devient incontournable, avec des impacts directs sur la configuration des pare-feux et des règles de filtrage.</p>
+        <div class="article-tags">
+          <span class="article-tag">IPv6</span>
+          <span class="article-tag">ARCEP</span>
+          <span class="article-tag">Dual-stack</span>
+        </div>
+        <div class="article-source">Source : <span>ARCEP.fr</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CLOUD -->
+  <div class="category-section fade-up" data-cat="cloud" style="transition-delay:0.2s">
+    <div class="category-header">
+      <div class="category-icon" style="background:rgba(255,107,107,0.12)">☁️</div>
+      <div class="category-title">Cloud &amp; Virtualisation</div>
+      <div class="category-count">3 articles</div>
+    </div>
+    <div class="articles-grid">
+
+      <div class="article-card cloud">
+        <div class="article-meta">
+          <span class="article-category-badge badge-cloud">Cloud</span>
+          <span class="article-date">Mars 2026</span>
+        </div>
+        <div class="article-title">Microsoft Entra ID : la nouvelle identité cloud de l'écosystème Azure AD</div>
+        <p class="article-summary">Microsoft finalise la migration complète d'Azure Active Directory vers Microsoft Entra ID. Le changement va au-delà du nom : nouvelles politiques d'accès conditionnel, intégration renforcée avec Intune et support amélioré des environnements hybrides on-prem/cloud.</p>
+        <div class="article-tags">
+          <span class="article-tag">Entra ID</span>
+          <span class="article-tag">Azure AD</span>
+          <span class="article-tag">Hybride</span>
+          <span class="article-tag">Intune</span>
+        </div>
+        <div class="article-source">Source : <span>Microsoft Tech Community</span></div>
+      </div>
+
+      <div class="article-card cloud">
+        <div class="article-meta">
+          <span class="article-category-badge badge-cloud">Cloud</span>
+          <span class="article-date">Fév. 2026</span>
+        </div>
+        <div class="article-title">Hyper-V vs VMware ESXi : quel hyperviseur choisir en 2026 ?</div>
+        <p class="article-summary">Après le rachat de VMware par Broadcom et la révision des licences, beaucoup d'entreprises réévaluent leur stratégie de virtualisation. Hyper-V s'impose comme alternative naturelle dans les environnements déjà sous Windows Server, avec des performances très proches d'ESXi sur les charges de travail classiques.</p>
+        <div class="article-tags">
+          <span class="article-tag">Hyper-V</span>
+          <span class="article-tag">VMware</span>
+          <span class="article-tag">Virtualisation</span>
+          <span class="article-tag">Broadcom</span>
+        </div>
+        <div class="article-source">Source : <span>LeMagIT / Virtualization Review</span></div>
+      </div>
+
+      <div class="article-card cloud">
+        <div class="article-meta">
+          <span class="article-category-badge badge-cloud">Cloud</span>
+          <span class="article-date">Jan. 2026</span>
+        </div>
+        <div class="article-title">Sauvegarde 3-2-1 : les bonnes pratiques à l'ère du cloud</div>
+        <p class="article-summary">La règle 3-2-1 (3 copies, 2 supports différents, 1 hors site) évolue avec le cloud. Les solutions comme Azure Backup ou Veeam permettent d'automatiser la copie hors site tout en respectant les contraintes RGPD avec des options de stockage en France.</p>
+        <div class="article-tags">
+          <span class="article-tag">Backup</span>
+          <span class="article-tag">Azure Backup</span>
+          <span class="article-tag">RGPD</span>
+          <span class="article-tag">Veeam</span>
+        </div>
+        <div class="article-source">Source : <span>Microsoft Docs / Veeam Blog</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADMIN SYSTEME -->
+  <div class="category-section fade-up" data-cat="admin" style="transition-delay:0.3s">
+    <div class="category-header">
+      <div class="category-icon" style="background:rgba(250,199,117,0.12)">⚙️</div>
+      <div class="category-title">Administration Système</div>
+      <div class="category-count">3 articles</div>
+    </div>
+    <div class="articles-grid">
+
+      <div class="article-card admin">
+        <div class="article-meta">
+          <span class="article-category-badge badge-admin">Administration</span>
+          <span class="article-date">Mars 2026</span>
+        </div>
+        <div class="article-title">Windows Server 2025 : les nouveautés pour les admins sys</div>
+        <p class="article-summary">Windows Server 2025 apporte des améliorations significatives : support natif de SMB over QUIC pour les connexions sécurisées hors VPN, Delegated Managed Service Accounts (dMSA) pour remplacer les comptes de service classiques, et des performances Hyper-V largement optimisées.</p>
+        <div class="article-tags">
+          <span class="article-tag">Windows Server 2025</span>
+          <span class="article-tag">SMB</span>
+          <span class="article-tag">dMSA</span>
+        </div>
+        <div class="article-source">Source : <span>Microsoft Docs</span></div>
+      </div>
+
+      <div class="article-card admin">
+        <div class="article-meta">
+          <span class="article-category-badge badge-admin">Administration</span>
+          <span class="article-date">Fév. 2026</span>
+        </div>
+        <div class="article-title">PowerShell 7.5 : automatisation avancée pour les environnements Windows</div>
+        <p class="article-summary">La dernière version de PowerShell améliore les performances des scripts parallèles et introduit de nouveaux modules pour la gestion d'Active Directory et d'Entra ID. L'intégration avec Windows Admin Center facilite l'automatisation des tâches d'administration courantes.</p>
+        <div class="article-tags">
+          <span class="article-tag">PowerShell 7.5</span>
+          <span class="article-tag">Automatisation</span>
+          <span class="article-tag">Active Directory</span>
+        </div>
+        <div class="article-source">Source : <span>PowerShell Blog / Microsoft</span></div>
+      </div>
+
+      <div class="article-card admin">
+        <div class="article-meta">
+          <span class="article-category-badge badge-admin">Administration</span>
+          <span class="article-date">Jan. 2026</span>
+        </div>
+        <div class="article-title">WSUS en fin de vie : quelles alternatives pour la gestion des mises à jour ?</div>
+        <p class="article-summary">Microsoft annonce la dépréciation progressive de WSUS au profit de solutions cloud comme Windows Update for Business et Intune. Pour les environnements on-premise, des alternatives open-source comme GLPI+FusionInventory ou des solutions tierces comblent le vide laissé par WSUS.</p>
+        <div class="article-tags">
+          <span class="article-tag">WSUS</span>
+          <span class="article-tag">Intune</span>
+          <span class="article-tag">WUfB</span>
+          <span class="article-tag">Patch Management</span>
+        </div>
+        <div class="article-source">Source : <span>Microsoft Tech Community</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-text">© 2026 Ryan Hadjout — Fontenay-sous-Bois</span>
+  <a href="index.html" class="btn-outline" style="font-size:12px">← Retour au portfolio</a>
+</footer>
+
+<script>
+  function filterCategory(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.category-section').forEach(section => {
+      if (cat === 'all' || section.dataset.cat === cat) {
+        section.style.display = 'block';
+      } else {
+        section.style.display = 'none';
+      }
+    });
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
